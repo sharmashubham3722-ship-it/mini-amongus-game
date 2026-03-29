@@ -3,43 +3,91 @@
 <head>
   <title>Mini Among Us</title>
   <style>
-    body { margin: 0; overflow: hidden; background: black; }
-    #player {
-      width: 40px;
-      height: 40px;
-      background: red;
-      position: absolute;
-      top: 100px;
-      left: 100px;
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle, #0a0a2a, #000);
+      color: white;
+      font-family: Arial;
     }
-    .npc {
+
+    #player, .npc {
       width: 40px;
-      height: 40px;
-      background: blue;
+      height: 50px;
+      border-radius: 20px;
       position: absolute;
+    }
+
+    #player {
+      background: red;
+      box-shadow: 0 0 10px red;
+    }
+
+    .npc {
+      background: cyan;
+      box-shadow: 0 0 10px cyan;
+    }
+
+    #info {
+      position: fixed;
+      top: 10px;
+      left: 10px;
     }
   </style>
 </head>
 <body>
 
+<div id="info"></div>
+
 <div id="player"></div>
 
-<div class="npc" style="top:200px; left:200px;"></div>
-<div class="npc" style="top:300px; left:400px;"></div>
+<div class="npc" id="npc1" style="top:200px; left:200px;"></div>
+<div class="npc" id="npc2" style="top:300px; left:400px;"></div>
 
 <script>
-  let player = document.getElementById("player");
+  const player = document.getElementById("player");
+  const npcs = document.querySelectorAll(".npc");
+  const info = document.getElementById("info");
+
   let x = 100;
   let y = 100;
 
+  let isImpostor = Math.random() < 0.5;
+
+  info.innerText = isImpostor ? "You are IMPOSTOR 😈 (Press SPACE to kill)" : "You are CREWMATE 🙂";
+
   document.addEventListener("keydown", function(e) {
+
     if (e.key === "ArrowUp") y -= 10;
     if (e.key === "ArrowDown") y += 10;
     if (e.key === "ArrowLeft") x -= 10;
     if (e.key === "ArrowRight") x += 10;
 
+    // Kill system
+    if (e.key === " " && isImpostor) {
+      npcs.forEach(npc => {
+        let nx = npc.offsetLeft;
+        let ny = npc.offsetTop;
+
+        let dist = Math.hypot(nx - x, ny - y);
+
+        if (dist < 60) {
+          npc.style.display = "none";
+        }
+      });
+    }
+
     player.style.top = y + "px";
     player.style.left = x + "px";
+
+    // Win condition
+    let alive = [...npcs].filter(npc => npc.style.display !== "none");
+
+    if (alive.length === 0 && isImpostor) {
+      alert("IMPOSTOR WINS 😈");
+      location.reload();
+    }
+
   });
 </script>
 
